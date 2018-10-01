@@ -6,7 +6,8 @@
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-This SlackBot is a fully featured sla
+This SlackBot is a fully featured slack bot in the style of old IRC bots with the power of new fancy bots. You can react
+to arbitrary messages like tracking emojis in a message like "Giving some :heart: to @user", or build simple call and response style messages like `@bot dosomething`
 
 ## Getting Started
 
