@@ -1,0 +1,4 @@
+PortlandLabs\Slackbot\Slack\Api\Payload\ConversationsListPayloadResponse:
+  properties:
+    responseMetadata:
+      type: PortlandLabs\Slackbot\Slack\Api\Payload\Model\ResponseMetadata

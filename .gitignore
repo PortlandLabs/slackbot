@@ -1,0 +1,9 @@
+.env
+.idea
+status.json
+domains.json
+vendor
+composer.lock
+tmp/cache
+config/*
+tmp/

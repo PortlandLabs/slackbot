@@ -1,0 +1,4 @@
+PortlandLabs\Slackbot\Slack\Api\Payload\ConversationsListPayload:
+  properties:
+    types:
+      type: string

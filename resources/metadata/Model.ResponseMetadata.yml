@@ -1,0 +1,4 @@
+PortlandLabs\Slackbot\Slack\Api\Payload\Model\ResponseMetadata:
+  properties:
+    nextCursor:
+      type: string
