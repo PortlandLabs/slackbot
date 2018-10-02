@@ -1,38 +1,45 @@
 {
-    "name": "portlandlabs/slackbot",
-    "description": "A Slackbot that uses the slack RTM API and the slack web API. Built on PSR components",
-    "type": "project",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Korvin Szanto",
-            "email": "korvin@portlandlabs.com"
-        }
-    ],
-    "require": {
-        "php": "^7.2",
-        "ext-json": "*",
-        "ext-pcntl": "*",
-        "Textalk/websocket": "^1.2",
-        "cleentfaar/slack": "^0.20.1",
-        "vlucas/phpdotenv": "^2.4",
-        "buttress/collecterator": "^1.0",
-        "league/climate": "^3.2",
-        "illuminate/config": "^5.4",
-        "guzzlehttp/guzzle": "^6.3",
-        "react/promise": "^2.5",
-        "cache/filesystem-adapter": "^1.0",
-        "nunomaduro/collision": "^2.0",
-        "ratchet/pawl": "^0.3.1",
-        "illuminate/container": "^5.7",
-        "clue/arguments": "^2.0"
-    },
-    "require-dev": {
-        "roave/security-advisories": "dev-master"
-    },
-    "autoload": {
-        "psr-4": {
-            "PortlandLabs\\Slackbot\\": "src"
-        }
+  "name": "portlandlabs/slackbot",
+  "description": "A Slackbot that uses the slack RTM API and the slack web API. Built on PSR components",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Korvin Szanto",
+      "email": "korvin@portlandlabs.com"
     }
+  ],
+  "require": {
+    "php": "^7.2",
+    "ext-json": "*",
+    "ext-pcntl": "*",
+    "Textalk/websocket": "^1.2",
+    "cleentfaar/slack": "^0.20.1",
+    "vlucas/phpdotenv": "^2.4",
+    "buttress/collecterator": "^1.0",
+    "league/climate": "^3.2",
+    "illuminate/config": "^5.4",
+    "guzzlehttp/guzzle": "^6.3",
+    "react/promise": "^2.5",
+    "cache/filesystem-adapter": "^1.0",
+    "nunomaduro/collision": "^2.0",
+    "ratchet/pawl": "^0.3.1",
+    "illuminate/container": "^5.7",
+    "clue/arguments": "^2.0",
+    "phpunit/phpunit": "^7.3",
+    "mockery/mockery": "^1.1"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "PortlandLabs\\Slackbot\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PortlandLabs\\Slackbot\\": "tests"
+    }
+  }
 }

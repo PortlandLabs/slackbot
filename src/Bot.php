@@ -2,6 +2,8 @@
 
 namespace PortlandLabs\Slackbot;
 
+use Carbon\Carbon;
+use DateTime;
 use PortlandLabs\Slackbot\Slack\Api\Payload\RtmConnectPayloadResponse;
 use PortlandLabs\Slackbot\Slack\Api\Client as ApiClient;
 use PortlandLabs\Slackbot\Slack\Rtm\Client as RtmClient;
@@ -44,7 +46,7 @@ class Bot
      */
     protected $negotiator;
 
-    /** @var \DateTime */
+    /** @var Carbon */
     protected $connected;
 
     /** @var bool */
@@ -91,7 +93,10 @@ class Bot
 
             $this->api()->setUsername($payload->getUserName());
             $this->connecting = false;
-            $this->connected = new \DateTime();
+            $this->connected = Carbon::now();
+
+            // Start sending Pings
+            $this->startPingLoop();
         });
 
         return $promise;
@@ -152,9 +157,9 @@ class Bot
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getConnectedTime(): \DateTime
+    public function getConnectedTime(): DateTime
     {
         return $this->connected;
     }
@@ -201,46 +206,51 @@ class Bot
 
     /**
      * Get a string representing how long we've been up
+     *
+     * @param DateTime|null $now
+     *
      * @return string
      */
-    public function getUptime(): string
+    public function getUptime(DateTime $now = null): string
     {
-        $now = new \DateTime();
-        $start = $this->getConnectedTime();
-
-        $diff = $start->diff($now);
-        $details = [];
-
-        if ($diff->y) {
-            $details[] = "$diff->y year" . ($diff->y > 1 ? 's' : '');
+        if (!$now) {
+            $now = Carbon::now();
         }
 
-        if ($diff->m) {
-            $details[] = "$diff->m month" . ($diff->m > 1 ? 's' : '');
-        }
+        $diffString = $this->connected->diffForHumans($now, true, false, 6);
 
-        if ($diff->d) {
-            $details[] = "$diff->d day" . ($diff->d > 1 ? 's' : '');
-        }
+        // Return the time string with "and" between the last two segments
+        return preg_replace('/(\d+ \D+?) (\d+ \D+?)$/', '$1 and $2', $diffString);
 
-        if ($diff->h) {
-            $details[] = "$diff->h hour" . ($diff->h > 1 ? 's' : '');
-        }
+    }
 
-        if ($diff->i) {
-            $details[] = "$diff->i minute" . ($diff->i > 1 ? 's' : '');
-        }
+    /**
+     * Start sending pings over RTM to keep us alive
+     */
+    protected function startPingLoop()
+    {
+        // Track how many times pings fail
+        $fails = 0;
 
-        if ($diff->s) {
-            $details[] = "$diff->s second" . ($diff->s > 1 ? 's' : '');
-        }
+        $this->getLoop()->addPeriodicTimer(10, function() use (&$fails) {
+            $this->rtmClient->sendPing()->otherwise(function() use (&$fails) {
+                $fails++;
 
-        $last = null;
-        if (count($details) > 1) {
-            $last = array_pop($details);
-        }
+                if ($fails > 3) {
+                    $this->handleInterrupt();
+                    $fails = 0;
+                }
+            });
+        });
+    }
 
-        return implode(' ', $details) . ($last ? " and $last" : '');
+    /**
+     * Handle the RTM session getting interrupted
+     */
+    protected function handleInterrupt()
+    {
+        $this->logger->critical('-- Disconnected from RTM, Ping timeout --');
+        exit;
     }
 
 }

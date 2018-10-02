@@ -16,7 +16,8 @@ class Factory
      */
     private const TYPES = [
         'hello' => Hello::class,
-        'message' => Message\UserMessage::class
+        'pong' => Pong::class,
+        'message' => Message\UserMessage::class,
     ];
 
     /** @var ContainerInterface */
@@ -55,6 +56,10 @@ class Factory
         // Build the event
         $event = $this->container->get($typeClass);
         unset($data['type'], $data['subtype']);
+
+        if ($event instanceof Pong) {
+            $event->setData($data);
+        }
 
         foreach ($data as $key => $value) {
             $setter = camel_case('set_' . $key);

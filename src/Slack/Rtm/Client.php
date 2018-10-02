@@ -8,6 +8,7 @@ use PortlandLabs\Slackbot\Slack\Api\Client as ApiClient;
 use PortlandLabs\Slackbot\Slack\Rtm\Event\Factory;
 use PortlandLabs\Slackbot\Slack\Rtm\Event\Handler;
 use PortlandLabs\Slackbot\Slack\Rtm\Event\Middleware;
+use PortlandLabs\Slackbot\Slack\Rtm\Event\Pong;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -54,6 +55,9 @@ class Client
 
     /** @var bool */
     protected $connected = false;
+
+    /** @var Deferred[] */
+    protected $pings = [];
 
     public function __construct(ContainerInterface $container, Factory $eventFactory, LoggerInterface $logger)
     {
@@ -124,7 +128,7 @@ class Client
         // Get our promise and add a listener when it resolves
         $promise = $this->getPromise();
         $promise->done(function() use ($stack) {
-            $this->logger->debug('-- Starting to listen... --');
+            $this->logger->info('-- Starting to listen... --');
 
             $this->listener = function (Message $message) use ($stack) {
                 if (!$this->connected) {
@@ -140,6 +144,10 @@ class Client
 
                 // If we can build an event from it, send it through the middleware
                 if ($event = $this->eventFactory->buildEvent($data)) {
+                    if ($event instanceof Pong) {
+                        $this->handlePong($event);
+                    }
+
                     $this->logger->debug('[<bold>RTM.EVT</bold>] Sending through middleware...');
                     $stack->handle($event);
                 }
@@ -257,6 +265,57 @@ class Client
         // Send our data
         $this->send('message', $data);
         return $deferred->promise();
+    }
+
+    /**
+     * Send a ping and return a promise that resolves when the pong is received
+     *
+     * @param array $data
+     * @param int $expires Old expired pings are marked rejected once a new ping is sent
+     * @return Promise
+     */
+    public function sendPing(array $data = [], int $expires = 0): Promise
+    {
+        $expires = max($expires, 0);
+
+        $this->prunePings();
+
+        $deferred = new Deferred();
+        $this->pings[time() + $expires] = [$deferred, $this->messageId];
+        $this->send('ping', $data);
+
+        return $deferred->promise();
+    }
+
+    /**
+     * Deal with an incoming Pong message
+     *
+     * @param Pong $pong
+     */
+    public function handlePong(Pong $pong)
+    {
+        foreach ($this->pings as $key => $data) {
+            [$deferred, $replyTo] = $data;
+            if ($replyTo === $pong->getReplyTo()) {
+                $deferred->resolve($pong);
+                unset($this->pings[$key]);
+            }
+        }
+    }
+
+    /**
+     * Reject and remove old expired pings
+     */
+    protected function prunePings(): void
+    {
+        $now = time();
+        foreach ($this->pings as $expires => $data) {
+            [$deferred, $replyTo] = $data;
+            if ($now > $expires) {
+                $deferred->reject('expired');
+                unset($this->pings[$expires]);
+            }
+        }
     }
 
     /**
