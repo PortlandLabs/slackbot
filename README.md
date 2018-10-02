@@ -2,6 +2,7 @@
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 ![Software License][ico-license]
+[![Build Status][ico-travis]][link-travis]
 [![Coverage Status][ico-scrutinizer]][link-scrutinizer]
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
@@ -98,11 +99,13 @@ There are a few ways to send messages to slack from a command:
 
 [ico-version]: https://img.shields.io/packagist/v/portlandlabs/slackbot.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/portlandlabs/slackbot/master.svg?style=flat-square
 [ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/portlandlabs/slackbot.svg?style=flat-square
 [ico-code-quality]: https://img.shields.io/scrutinizer/g/portlandlabs/slackbot.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/portlandlabs/slackbot.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/portlandlabs/slackbot
+[link-travis]: https://travis-ci.org/portlandlabs/slackbot
 [link-scrutinizer]: https://scrutinizer-ci.com/g/portlandlabs/slackbot/code-structure
 [link-code-quality]: https://scrutinizer-ci.com/g/portlandlabs/slackbot
 [link-downloads]: https://packagist.org/packages/portlandlabs/slackbot

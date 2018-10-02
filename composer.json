@@ -25,12 +25,12 @@
     "nunomaduro/collision": "^2.0",
     "ratchet/pawl": "^0.3.1",
     "illuminate/container": "^5.7",
-    "clue/arguments": "^2.0",
-    "phpunit/phpunit": "^7.3",
-    "mockery/mockery": "^1.1"
+    "clue/arguments": "^2.0"
   },
   "require-dev": {
-    "roave/security-advisories": "dev-master"
+    "roave/security-advisories": "dev-master",
+    "phpunit/phpunit": "^7.3",
+    "mockery/mockery": "^1.1"
   },
   "autoload": {
     "psr-4": {
