@@ -105,7 +105,7 @@ There are a few ways to send messages to slack from a command:
 [ico-downloads]: https://img.shields.io/packagist/dt/portlandlabs/slackbot.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/portlandlabs/slackbot
-[link-travis]: https://travis-ci.org/portlandlabs/slackbot
+[link-travis]: https://travis-ci.com/portlandlabs/slackbot
 [link-scrutinizer]: https://scrutinizer-ci.com/g/portlandlabs/slackbot/code-structure
 [link-code-quality]: https://scrutinizer-ci.com/g/portlandlabs/slackbot
 [link-downloads]: https://packagist.org/packages/portlandlabs/slackbot
