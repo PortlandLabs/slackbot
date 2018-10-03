@@ -20,6 +20,10 @@ class Factory
         'message' => Message\UserMessage::class,
     ];
 
+    private const SHORT_MAP = [
+        'ts' => 'timestamp'
+    ];
+
     /** @var ContainerInterface */
     protected $container;
 
@@ -62,6 +66,7 @@ class Factory
         }
 
         foreach ($data as $key => $value) {
+            $key = self::SHORT_MAP[$key] ?? $key;
             $setter = camel_case('set_' . $key);
 
             if (!method_exists($event, $setter)) {

@@ -1,0 +1,6 @@
+PortlandLabs\Slackbot\Slack\Api\Payload\RtmConnectPayloadResponse:
+  properties:
+    url:
+      type: string
+    self:
+      type: array<string>

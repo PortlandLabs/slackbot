@@ -2,6 +2,7 @@
 namespace PortlandLabs\Slackbot\Command;
 
 use PortlandLabs\Slackbot\Command\Argument\Manager;
+use PortlandLabs\Slackbot\Slack\Api\Payload\ReactionsAddPayload;
 use PortlandLabs\Slackbot\Slack\Rtm\Event\Message;
 use Symfony\Component\Console\Helper\Helper;
 
@@ -45,5 +46,7 @@ class InfoCommand extends SimpleCommand
         $builder->send(implode(PHP_EOL, $data))
             ->to($message->getChannel())->withIcon(':information_source:')
             ->execute($api);
+
+        $this->bot->api()->send(ReactionsAddPayload::reactTo($message, 'the_horns'));
     }
 }
