@@ -8,12 +8,12 @@ use JMS\Serializer\Annotation\Type;
 class RtmConnectPayloadResponse extends AbstractPayloadResponse
 {
     /**
-     * @Type("string")
+     * @var string
      */
     private $url;
 
     /**
-     * @Type("array<string>")
+     * @var string[]
      */
     private $self;
 

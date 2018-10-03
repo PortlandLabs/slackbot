@@ -4,7 +4,6 @@ use PortlandLabs\Slackbot\Bot;
 use PortlandLabs\Slackbot\ContainerFactory;
 use PortlandLabs\Slackbot\Command;
 
-
 require __DIR__ . '/bootstrap/env.php';
 
 // Get a container implementation
