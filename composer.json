@@ -42,10 +42,5 @@
     "psr-4": {
       "PortlandLabs\\Slackbot\\": "tests"
     }
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "0.0.2"
-    }
   }
 }
