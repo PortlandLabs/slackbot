@@ -7,6 +7,8 @@ use PortlandLabs\Slackbot\Slack\Rtm\Event\Message;
 class RoleCommand extends SimpleCommand
 {
 
+    protected $description = 'Find out what "Role" you have';
+
     protected $signature = 'role';
 
     /**

@@ -12,7 +12,9 @@ use Psr\SimpleCache\CacheException;
 class RecallCommand extends SimpleCommand
 {
 
-    protected $signature = 'recall {thing}';
+    protected $description = 'Recall things that have been `remember`ed';
+
+    protected $signature = 'recall {thing?} {--l|list : List the things you can recall}';
 
     /** @var CacheInterface */
     protected $cache;
@@ -27,9 +29,17 @@ class RecallCommand extends SimpleCommand
     /**
      * @param Message $message
      * @param Manager $manager
+     *
+     * @throws \CL\Slack\Exception\SlackException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function run(Message $message, Manager $manager)
     {
+        if ($manager->get('list')) {
+            $this->outputList($message);
+            return;
+        }
+
         $thing = $manager->get('thing');
         $key = Str::snake('remember ' . $thing);
 
@@ -50,5 +60,26 @@ class RecallCommand extends SimpleCommand
             ->send("Here's what I remember:\n> " . $value)->to($message->getChannel())
             ->withIcon(':thinking_face:')
             ->execute($api);
+    }
+
+    protected function outputList(Message $message)
+    {
+        $out = [];
+        foreach ($this->cache->get('rememberindex', []) as $key => $thing) {
+            $out[] = "`$thing`";
+        }
+
+        $last = null;
+        if (count($out) > 1) {
+            $last = array_pop($out);
+        }
+
+        $result = 'I can recall ' . implode(', ', $out);
+
+        if ($last) {
+            $result .= ' or ' . $last;
+        }
+
+        $this->bot->feignTyping($message->getChannel(), $result);
     }
 }

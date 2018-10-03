@@ -17,7 +17,9 @@ class Cache implements Provider
      */
     public function register(Container $container)
     {
+        $cacheDir = getenv('CACHE_DIR') ?: 'cache';
+
         $container->singleton(CacheInterface::class, FilesystemCachePool::class);
-        $container->when(FilesystemCachePool::class)->needs('$folder')->give('cache');
+        $container->when(FilesystemCachePool::class)->needs('$folder')->give($cacheDir);
     }
 }

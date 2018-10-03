@@ -148,7 +148,7 @@ abstract class SimpleCommand implements ConsoleStyleCommand
 
         if ($parsedManager->get('help')) {
             // Output usage info
-            $this->outputUsage($message, $parsedManager);
+            $this->outputUsage($message, $parsedManager, $this);
         } else {
             // Run the command
             $this->run($message, $parsedManager);
@@ -161,7 +161,7 @@ abstract class SimpleCommand implements ConsoleStyleCommand
      * @param Message $message
      * @param Manager $manager
      */
-    protected function outputUsage(Message $message, Manager $manager)
+    protected function outputUsage(Message $message, Manager $manager, SimpleCommand $command)
     {
         $output = [];
         $channel = $message->getChannel();
@@ -172,8 +172,9 @@ abstract class SimpleCommand implements ConsoleStyleCommand
         $summary = new Summary();
 
         // Print the description if it's defined.
-        if ($this->getDescription()) {
-            $this->bot->feignTyping($channel, $this->getDescription());
+        if ($command->getDescription()) {
+            $output[] = '*' . ucfirst($manager->getCommand()) . '*: ' . $command->getDescription();
+            $output[] = '>>>';
         }
 
         // Output the simple usage statement

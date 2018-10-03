@@ -16,6 +16,8 @@ use Psr\SimpleCache\CacheException;
 class RememberCommand extends SimpleCommand
 {
 
+    protected $description = 'Remember something interesting to be `recall`ed later';
+
     protected $signature = 'remember {thing} {value}';
 
     /** @var CacheInterface */
@@ -43,11 +45,16 @@ class RememberCommand extends SimpleCommand
 
         $value = trim(substr($text, strpos($text, $thing) + strlen($thing)));
 
+        // trim off quotes
+        $value = ltrim($value, '"\'');
+
         $key = Str::snake('remember ' . $thing);
-        $trailing = $manager->trailing();
 
         try {
-            $this->cache->set($key, $value . ($trailing ? ' ' . $trailing : ''));
+            $this->cache->set($key, $value);
+            $keys = $this->cache->get('rememberindex', []);
+            $keys[$key] = $thing;
+            $this->cache->set('rememberindex', $keys);
         } catch (CacheException $e) {
             $this->bot->logger()->error('[CMD.RMB] Failed to remember: ' . $e->getMessage());
             $this->bot->feignTyping($message->getChannel(), 'Hmm.. I wasn\'t able to remember that... What was it again?');

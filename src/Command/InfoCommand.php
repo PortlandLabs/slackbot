@@ -8,6 +8,8 @@ use Symfony\Component\Console\Helper\Helper;
 class InfoCommand extends SimpleCommand
 {
 
+    protected $description = 'Get some diagnostic information';
+
     protected $signature = 'info';
 
     /**

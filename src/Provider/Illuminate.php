@@ -12,7 +12,6 @@ class Illuminate implements Illuminate\Provider
     protected $providers = [
         Illuminate\Slack::class,
         Illuminate\Log::class,
-        Illuminate\Command::class,
         Illuminate\Cache::class,
         Illuminate\Filesystem::class,
     ];

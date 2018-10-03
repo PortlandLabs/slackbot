@@ -48,6 +48,20 @@ things a little easier to implement. Commands that extend `SimpleCommand` work m
 Declare your `$signature` property and a `run(Message $message, ArgumentManager $manager)` method, and the super class 
 will manage hooking everything up.
 
+### Adding commands to the bot
+
+You can add commands to the bot through the bot's command manager:
+```php
+$bot->commands()->addCommand(CustomCommand::class);
+```
+
+**Adding Default Commands:**  
+We've wrapped the default commands in a simple provider:
+
+```php
+(new \PortlandLabs\Slackbot\Command\DefaultProvider())->register($bot);
+```
+
 ### Sending messages to slack
 
 There are a few ways to send messages to slack from a command:

@@ -12,6 +12,8 @@ use Psr\Container\ContainerInterface;
 class HelpCommand extends SimpleCommand
 {
 
+    protected $description = 'Get help';
+
     protected $signature = 'help {command? : The command to get help with}';
 
     protected $container;
@@ -39,7 +41,7 @@ class HelpCommand extends SimpleCommand
 
         $userRole = $this->checker->getRole($message);
 
-        $commandManager = $this->container->get(Manager::class);
+        $commandManager = $this->bot->commands();
         $commandName = $manager->get('command');
 
         $output[] = 'You can use the following commands:';
@@ -58,7 +60,7 @@ class HelpCommand extends SimpleCommand
             }
 
             if ($commandName && $arguments->getCommand() === $commandName) {
-                $this->outputUsage($message, $arguments);
+                $this->outputUsage($message, $arguments, $command);
                 return;
             }
 
@@ -67,7 +69,7 @@ class HelpCommand extends SimpleCommand
             // Output the simple usage statement
             $orderedArguments = array_merge($filter->withPrefix(), $filter->withoutPrefix());
             $short = $summary->short($orderedArguments);
-            $output[] = "> • `{$arguments->getCommand()}" . ($short ? " {$short}`" : '`');
+            $output[] = "• `{$arguments->getCommand()}" . ($short ? " {$short}`" : '`') . ' ' . $command->getDescription();
         }
 
         $this->bot->feignTyping($message->getChannel(), implode("\n", $output));

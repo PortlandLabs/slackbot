@@ -4,12 +4,11 @@ namespace PortlandLabs\Slackbot;
 
 use Carbon\Carbon;
 use DateTime;
-use PortlandLabs\Slackbot\Slack\Api\Payload\RtmConnectPayloadResponse;
+use PortlandLabs\Slackbot\Command\Manager;
 use PortlandLabs\Slackbot\Slack\Api\Client as ApiClient;
+use PortlandLabs\Slackbot\Slack\ConnectionManager;
 use PortlandLabs\Slackbot\Slack\Rtm\Client as RtmClient;
-use PortlandLabs\Slackbot\Slack\Rtm\Event;
 use PortlandLabs\Slackbot\Slack\Rtm\Event\Middleware\CommandMiddleware;
-use PortlandLabs\Slackbot\Slack\Rtm\WebsocketNegotiator;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\TimerInterface;
@@ -21,30 +20,14 @@ class Bot
     /** @var TimerInterface[] */
     protected $typing = [];
 
-    /**
-     * @var ApiClient
-     */
-    protected $apiClient;
+    /** @var ConnectionManager */
+    protected $connectionManager;
 
-    /**
-     * @var RtmClient
-     */
-    protected $rtmClient;
-
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     protected $logger;
 
-    /**
-     * @var LoopInterface
-     */
+    /** @var LoopInterface */
     protected $loop;
-
-    /**
-     * @var WebsocketNegotiator
-     */
-    protected $negotiator;
 
     /** @var Carbon */
     protected $connected;
@@ -62,13 +45,18 @@ class Bot
         CommandMiddleware::class
     ];
 
-    public function __construct(ApiClient $apiClient, RtmClient $rtmClient, LoggerInterface $logger, LoopInterface $loop, WebsocketNegotiator $negotiator)
+    protected $commands;
+
+    public function __construct(
+        ConnectionManager $connectionManager,
+        LoggerInterface $logger,
+        LoopInterface $loop,
+        Manager $commands)
     {
-        $this->apiClient = $apiClient;
-        $this->rtmClient = $rtmClient;
+        $this->connectionManager = $connectionManager;
         $this->logger = $logger;
         $this->loop = $loop;
-        $this->negotiator = $negotiator;
+        $this->commands = $commands;
         $this->id = bin2hex(random_bytes(4));
     }
 
@@ -80,23 +68,12 @@ class Bot
      */
     public function connect()
     {
-        $this->connecting = true;
-        $payload = $this->negotiator->resolveUrl($this->api(), 10);
-        $promise = $this->rtmClient->listen($this->loop, $payload, $this->eventMiddlewares, function(Event $event) {
-            $this->logger()->debug('[BOT.RCV] Received Event: ' . get_class($event));
-        });
+        $promise = $this->connectionManager->connect($this->getLoop(), $this->eventMiddlewares);
 
-        // Record when we connected
+        // Record when we connect
         $promise->done(function($result) {
-            /** @var RtmConnectPayloadResponse $payload */
-            [$connection, $payload] = $result;
-
-            $this->api()->setUsername($payload->getUserName());
             $this->connecting = false;
             $this->connected = Carbon::now();
-
-            // Start sending Pings
-            $this->startPingLoop();
         });
 
         return $promise;
@@ -104,6 +81,7 @@ class Bot
 
     /**
      * Run the bot
+     *
      * This method must be called in order to start running the bot
      */
     public function run()
@@ -125,22 +103,38 @@ class Bot
     }
 
     /**
+     * Get the API client
+     *
      * @return ApiClient
      */
     public function api(): ApiClient
     {
-        return $this->apiClient;
+        return $this->connectionManager->getApiClient();
     }
 
     /**
+     * Get the RTM client
+     *
      * @return RtmClient
      */
     public function rtm(): RtmClient
     {
-        return $this->rtmClient;
+        return $this->connectionManager->getRtmClient();
     }
 
     /**
+     * Get the command manager
+     *
+     * @return Manager
+     */
+    public function commands(): Manager
+    {
+        return $this->commands;
+    }
+
+    /**
+     * Get our Logger
+     *
      * @return LoggerInterface
      */
     public function logger(): LoggerInterface
@@ -149,6 +143,8 @@ class Bot
     }
 
     /**
+     * Get the event loop that is powering RTM
+     *
      * @return LoopInterface
      */
     public function getLoop(): LoopInterface
@@ -157,13 +153,20 @@ class Bot
     }
 
     /**
+     * Get the datetime for when we connected
+     *
      * @return DateTime
      */
-    public function getConnectedTime(): DateTime
+    public function getConnectedTime(): Carbon
     {
         return $this->connected;
     }
 
+    /**
+     * Get the bot ID
+     *
+     * @return string
+     */
     public function getId(): string
     {
         return $this->id;
@@ -186,10 +189,10 @@ class Bot
         $this->logger->info('[<bold>BOT.TYP</bold>] Beginning to type');
 
         if ($duration) {
-            $this->rtmClient->typing($channel);
+            $this->rtm()->typing($channel);
             $this->getLoop()->addTimer($duration, function () use ($channel, $message, $deferred) {
                 if ($message) {
-                    $this->rtmClient
+                    $this->rtm()
                         ->sendMessage($message, $channel)
                         ->done(function (array $result) use ($deferred) {
                             $this->logger->info('[<bold>BOT.TYP</bold>] Done Typing');
@@ -221,36 +224,5 @@ class Bot
 
         // Return the time string with "and" between the last two segments
         return preg_replace('/(\d+ \D+?) (\d+ \D+?)$/', '$1 and $2', $diffString);
-
     }
-
-    /**
-     * Start sending pings over RTM to keep us alive
-     */
-    protected function startPingLoop()
-    {
-        // Track how many times pings fail
-        $fails = 0;
-
-        $this->getLoop()->addPeriodicTimer(10, function() use (&$fails) {
-            $this->rtmClient->sendPing()->otherwise(function() use (&$fails) {
-                $fails++;
-
-                if ($fails > 3) {
-                    $this->handleInterrupt();
-                    $fails = 0;
-                }
-            });
-        });
-    }
-
-    /**
-     * Handle the RTM session getting interrupted
-     */
-    protected function handleInterrupt()
-    {
-        $this->logger->critical('-- Disconnected from RTM, Ping timeout --');
-        exit;
-    }
-
 }

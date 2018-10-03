@@ -9,6 +9,8 @@ use PortlandLabs\Slackbot\Slack\Rtm\Event\Message;
 class RestartCommand extends SimpleCommand
 {
 
+    protected $description = 'Cause the bot to shut down';
+
     protected $signature = 'restart {botID? : The ID of the bot to restart}';
 
     protected $role = Admin::class;

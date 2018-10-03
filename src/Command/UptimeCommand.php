@@ -7,6 +7,8 @@ use PortlandLabs\Slackbot\Slack\Rtm\Event\Message;
 class UptimeCommand extends SimpleCommand
 {
 
+    protected $description = 'Find out when I woke up';
+
     protected $signature = 'uptime {--t|timestamp : Show as seconds since I started}';
 
     /**

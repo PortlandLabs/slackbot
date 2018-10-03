@@ -1,7 +1,7 @@
 <?php
 namespace PortlandLabs\Slackbot\Slack\Rtm\Event\Middleware;
 
-use PortlandLabs\Slackbot\Command\Manager;
+use PortlandLabs\Slackbot\Bot;
 use PortlandLabs\Slackbot\Slack\Api\Client;
 use PortlandLabs\Slackbot\Slack\Rtm\Event;
 use PortlandLabs\Slackbot\Slack\Rtm\Event\Handler;
@@ -11,15 +11,11 @@ class CommandMiddleware implements Middleware
 {
 
     /** @var Client */
-    protected $api;
+    protected $bot;
 
-    /** @var Manager */
-    protected $commands;
-
-    public function __construct(Client $apiClient, Manager $manager)
+    public function __construct(Bot $bot)
     {
-        $this->api = $apiClient;
-        $this->commands = $manager;
+        $this->bot = $bot;
     }
 
     /**
@@ -33,7 +29,7 @@ class CommandMiddleware implements Middleware
     public function process(Event $event, Handler $handler): Event
     {
         if ($event instanceof Event\Message) {
-            $this->commands->handle($event);
+            $this->bot->commands()->handle($event);
         }
 
         return $handler->handle($event);
