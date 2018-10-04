@@ -107,7 +107,7 @@ class SignatureParser
             case preg_match('/(.+)\=\*(.+)/', $token, $matches):
             case preg_match('/(.+)\=(.+)/', $token, $matches):
                 $argument['token'] = $matches[1];
-                $argument['default'] = $matches[2];
+                $argument['defaultValue'] = $matches[2];
                 $argument['required'] = false;
                 break;
             default:
