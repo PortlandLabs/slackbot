@@ -12,7 +12,6 @@
   "require": {
     "php": "^7.2",
     "ext-json": "*",
-    "ext-pcntl": "*",
     "Textalk/websocket": "^1.2",
     "cleentfaar/slack": "^0.20.1",
     "vlucas/phpdotenv": "^2.4",
