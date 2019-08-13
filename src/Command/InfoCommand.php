@@ -25,13 +25,20 @@ class InfoCommand extends SimpleCommand
      */
     public function run(Message $message, Manager $manager)
     {
+        $extensions = [];
+        foreach (get_loaded_extensions() as $extension) {
+            $extensions[] = '`' . $extension . '@' . phpversion($extension) . '`';
+        }
+        
         $details = [
             'ID' => '`' . $this->bot->getId() . '`',
             'Uptime' => '_' . $this->bot->getUptime() . '_',
             'Memory Usage' => Helper::formatMemory(memory_get_usage(true)),
             'Peak Usage' => Helper::formatMemory(memory_get_peak_usage(true)),
             'userId' => $this->bot->rtm()->getUserId(),
-            'userName' => $this->bot->rtm()->getUserName()
+            'userName' => $this->bot->rtm()->getUserName(),
+            'PHP Version' => phpversion(),
+            'extensions' => implode(', ', $extensions),
         ];
 
         $data = [];
