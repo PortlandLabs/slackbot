@@ -36,7 +36,7 @@ class BotTest extends TestCase
             ['2 years 5 hours and 2 seconds', $time->copy()->subYear(2)->subHours(5)->subSeconds(2), $time],
             [
                 // Make sure it only shows 6 segments
-                '123 years 4 months 3 weeks 3 days 15 hours and 10 minutes',
+                '123 years 4 months 3 weeks 4 days 15 hours and 10 minutes',
                 $time->copy()->subYear(123)->subMonth(4)->subDays(25)->subHours(15)->subMinutes(10)->subSeconds(22),
                 $time
             ],
